@@ -33,49 +33,51 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'NEON\nTIC TAC TOE',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.orbitron(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF00FFFF),
-                height: 1.2,
-                shadows: [
-                  const Shadow(
-                    blurRadius: 20.0,
-                    color: Color(0xFF00FFFF),
-                    offset: Offset(0, 0),
-                  ),
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'NEON\nTIC TAC TOE',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.orbitron(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF00FFFF),
+                  height: 1.2,
+                  shadows: [
+                    const Shadow(
+                      blurRadius: 20.0,
+                      color: Color(0xFF00FFFF),
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 80),
-            CyberButton(
-              text: 'VS PLAYER',
-              color: const Color(0xFF00FFFF),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const GameScreen(isAiMode: false)),
-                );
-              },
-            ),
-            const SizedBox(height: 30),
-            CyberButton(
-              text: 'VS A.I.',
-              color: const Color(0xFFFF007F),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const GameScreen(isAiMode: true)),
-                );
-              },
-            ),
-          ],
+              const SizedBox(height: 80),
+              CyberButton(
+                text: 'VS PLAYER',
+                color: const Color(0xFF00FFFF),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const GameScreen(isAiMode: false)),
+                  );
+                },
+              ),
+              const SizedBox(height: 30),
+              CyberButton(
+                text: 'VS A.I.',
+                color: const Color(0xFFFF007F),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const GameScreen(isAiMode: true)),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -102,7 +104,7 @@ class CyberButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withAlpha(76), // ~0.3 opacity
               blurRadius: 15,
               spreadRadius: 2,
             ),
@@ -119,7 +121,7 @@ class CyberButton extends StatelessWidget {
               shadows: [
                 Shadow(
                   blurRadius: 10,
-                  color: color.withOpacity(0.8),
+                  color: color.withAlpha(204), // ~0.8 opacity
                 )
               ]
             ),
@@ -262,114 +264,182 @@ class _GameScreenState extends State<GameScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            // Scoreboard
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            child: Column(
               children: [
-                _buildScorePanel('PLAYER X', player1Score, colorX),
-                _buildScorePanel(widget.isAiMode ? 'A.I. O' : 'PLAYER O', player2Score, colorO),
-              ],
-            ),
-            const SizedBox(height: 40),
-            // Game Status
-            Text(
-              isGameOver 
-                ? (winner == 'Draw' ? 'IT\'S A DRAW!' : 'PLAYER $winner WINS!')
-                : 'PLAYER ${isPlayer1Turn ? 'X' : 'O'}\'S TURN',
-              style: GoogleFonts.orbitron(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: isGameOver && winner == 'Draw'
-                    ? Colors.white
-                    : (isGameOver ? (winner == 'X' ? colorX : colorO) : (isPlayer1Turn ? colorX : colorO)),
-                shadows: [
-                  Shadow(
-                    blurRadius: 15.0,
-                    color: isGameOver && winner == 'Draw'
-                        ? Colors.white.withOpacity(0.5)
-                        : (isGameOver ? (winner == 'X' ? colorX : colorO) : (isPlayer1Turn ? colorX : colorO)),
-                  )
-                ],
-              ),
-            ),
-            const Spacer(),
-            // Game Board
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                // Scoreboard
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildScorePanel('PLAYER X', player1Score, colorX),
+                    _buildScorePanel(widget.isAiMode ? 'A.I. O' : 'PLAYER O', player2Score, colorO),
+                  ],
                 ),
-                itemCount: 9,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () => handleTap(index),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF141620),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: const Color(0xFF1F2232),
-                          width: 2,
-                        ),
-                        boxShadow: [
-                          if (board[index] != '')
-                            BoxShadow(
-                              color: board[index] == 'X' 
-                                  ? colorX.withOpacity(0.15) 
-                                  : colorO.withOpacity(0.15),
-                              blurRadius: 15,
-                              spreadRadius: 2,
-                            )
-                        ]
+                const SizedBox(height: 30),
+                // Game Status
+                Text(
+                  isGameOver 
+                    ? (winner == 'Draw' ? 'IT\'S A DRAW!' : 'PLAYER $winner WINS!')
+                    : 'PLAYER ${isPlayer1Turn ? 'X' : 'O'}\'S TURN',
+                  style: GoogleFonts.orbitron(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isGameOver && winner == 'Draw'
+                        ? Colors.white
+                        : (isGameOver ? (winner == 'X' ? colorX : colorO) : (isPlayer1Turn ? colorX : colorO)),
+                    shadows: [
+                      Shadow(
+                        blurRadius: 15.0,
+                        color: isGameOver && winner == 'Draw'
+                            ? Colors.white.withAlpha(128)
+                            : (isGameOver ? (winner == 'X' ? colorX : colorO) : (isPlayer1Turn ? colorX : colorO)),
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 30),
+                // Game Board
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
                       ),
-                      child: Center(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return ScaleTransition(scale: animation, child: child);
-                          },
-                          child: Text(
-                            board[index],
-                            key: ValueKey<String>(board[index]),
-                            style: GoogleFonts.rajdhani(
-                              fontSize: 72,
-                              fontWeight: FontWeight.bold,
-                              color: board[index] == 'X' ? colorX : colorO,
-                              shadows: board[index] == '' ? [] : [
-                                Shadow(
-                                  blurRadius: 20,
-                                  color: board[index] == 'X' ? colorX : colorO,
-                                )
-                              ],
+                      itemCount: 9,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () => handleTap(index),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF141620),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: const Color(0xFF1F2232),
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                if (board[index] != '')
+                                  BoxShadow(
+                                    color: board[index] == 'X' 
+                                        ? colorX.withAlpha(38) 
+                                        : colorO.withAlpha(38),
+                                    blurRadius: 15,
+                                    spreadRadius: 2,
+                                  )
+                              ]
+                            ),
+                            child: Center(
+                              child: _buildNeonShape(board[index]),
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                if (isGameOver)
+                  CyberButton(
+                    text: 'PLAY AGAIN',
+                    color: Colors.white,
+                    onTap: resetGame,
+                  ),
+                if (!isGameOver) const SizedBox(height: 56), // Placeholder to maintain size when button not present
+              ],
             ),
-            const Spacer(),
-            if (isGameOver)
-              CyberButton(
-                text: 'PLAY AGAIN',
-                color: Colors.white,
-                onTap: resetGame,
-              ),
-            const SizedBox(height: 40),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildNeonShape(String value) {
+    if (value == '') return const SizedBox.shrink();
+    
+    if (value == 'X') {
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: 0.0, end: 1.0),
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.elasticOut,
+        builder: (context, double val, child) {
+          return Transform.scale(
+            scale: val,
+            child: Transform.rotate(
+              angle: (1.0 - val) * pi, // Spins as it scales up
+              child: child,
+            ),
+          );
+        },
+        child: FractionallySizedBox(
+          widthFactor: 0.6,
+          heightFactor: 0.6,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Transform.rotate(
+                angle: pi / 4,
+                child: Container(
+                  width: 10,
+                  decoration: BoxDecoration(
+                    color: colorX,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: [
+                      BoxShadow(color: colorX.withAlpha(150), blurRadius: 12, spreadRadius: 2)
+                    ]
+                  ),
+                ),
+              ),
+              Transform.rotate(
+                angle: -pi / 4,
+                child: Container(
+                  width: 10,
+                  decoration: BoxDecoration(
+                    color: colorX,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: [
+                      BoxShadow(color: colorX.withAlpha(150), blurRadius: 12, spreadRadius: 2)
+                    ]
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      return TweenAnimationBuilder(
+        tween: Tween<double>(begin: 0.0, end: 1.0),
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.elasticOut,
+        builder: (context, double val, child) {
+          return Transform.scale(
+            scale: val,
+            child: child,
+          );
+        },
+        child: FractionallySizedBox(
+          widthFactor: 0.6,
+          heightFactor: 0.6,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: colorO, width: 10),
+              boxShadow: [
+                BoxShadow(color: colorO.withAlpha(150), blurRadius: 12, spreadRadius: 2)
+              ]
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildScorePanel(String title, int score, Color color) {
@@ -394,7 +464,7 @@ class _GameScreenState extends State<GameScreen> {
             shadows: [
               Shadow(
                 blurRadius: 20.0,
-                color: color.withOpacity(0.8),
+                color: color.withAlpha(204),
               )
             ],
           ),
