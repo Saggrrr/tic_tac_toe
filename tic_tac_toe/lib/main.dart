@@ -26,58 +26,160 @@ class TicTacToeApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Color colorX = const Color(0xFF00FFFF);
+  Color colorO = const Color(0xFFFF007F);
+
+  static const List<Color> neonColors = [
+    Color(0xFF00FFFF), // Cyan
+    Color(0xFFFF007F), // Pink
+    Color(0xFF39FF14), // Green
+    Color(0xFFFFEA00), // Yellow
+    Color(0xFFB026FF), // Purple
+    Color(0xFFFF4500), // Orange
+  ];
+
+  void _openSettings() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF141620),
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: Color(0xFF1F2232), width: 2),
+                borderRadius: BorderRadius.circular(16)
+              ),
+              title: Text('CHOOSE COLORS', style: GoogleFonts.orbitron(color: Colors.white, fontWeight: FontWeight.bold)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('PLAYER X', style: GoogleFonts.orbitron(color: colorX, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: neonColors.map((c) => GestureDetector(
+                      onTap: () {
+                        setStateDialog(() => colorX = c);
+                        setState(() {});
+                      },
+                      child: Container(
+                        width: 40, height: 40,
+                        decoration: BoxDecoration(
+                          color: c,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: colorX == c ? Colors.white : Colors.transparent, width: 3),
+                          boxShadow: [BoxShadow(color: c.withAlpha(150), blurRadius: 10)]
+                        ),
+                      ),
+                    )).toList(),
+                  ),
+                  const SizedBox(height: 24),
+                  Text('PLAYER O', style: GoogleFonts.orbitron(color: colorO, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: neonColors.map((c) => GestureDetector(
+                      onTap: () {
+                        setStateDialog(() => colorO = c);
+                        setState(() {});
+                      },
+                      child: Container(
+                        width: 40, height: 40,
+                        decoration: BoxDecoration(
+                          color: c,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: colorO == c ? Colors.white : Colors.transparent, width: 3),
+                          boxShadow: [BoxShadow(color: c.withAlpha(150), blurRadius: 10)]
+                        ),
+                      ),
+                    )).toList(),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('DONE', style: GoogleFonts.orbitron(color: Colors.white)),
+                )
+              ],
+            );
+          }
+        );
+      }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'NEON\nTIC TAC TOE',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.orbitron(
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF00FFFF),
-                  height: 1.2,
-                  shadows: [
-                    const Shadow(
-                      blurRadius: 20.0,
-                      color: Color(0xFF00FFFF),
-                      offset: Offset(0, 0),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'NEON\nTIC TAC TOE',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.orbitron(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        height: 1.2,
+                        shadows: [
+                          Shadow(blurRadius: 20.0, color: Colors.white.withAlpha(150), offset: const Offset(0, 0)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 80),
+                    CyberButton(
+                      text: 'VS PLAYER',
+                      color: colorX,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => GameScreen(isAiMode: false, colorX: colorX, colorO: colorO)),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    CyberButton(
+                      text: 'VS A.I.',
+                      color: colorO,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => GameScreen(isAiMode: true, colorX: colorX, colorO: colorO)),
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 80),
-              CyberButton(
-                text: 'VS PLAYER',
-                color: const Color(0xFF00FFFF),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const GameScreen(isAiMode: false)),
-                  );
-                },
+            ),
+            Positioned(
+              top: 10,
+              right: 10,
+              child: IconButton(
+                icon: const Icon(Icons.settings, color: Colors.white, size: 30),
+                onPressed: _openSettings,
               ),
-              const SizedBox(height: 30),
-              CyberButton(
-                text: 'VS A.I.',
-                color: const Color(0xFFFF007F),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const GameScreen(isAiMode: true)),
-                  );
-                },
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -104,7 +206,7 @@ class CyberButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: color.withAlpha(76), // ~0.3 opacity
+              color: color.withAlpha(76),
               blurRadius: 15,
               spreadRadius: 2,
             ),
@@ -121,7 +223,7 @@ class CyberButton extends StatelessWidget {
               shadows: [
                 Shadow(
                   blurRadius: 10,
-                  color: color.withAlpha(204), // ~0.8 opacity
+                  color: color.withAlpha(204),
                 )
               ]
             ),
@@ -134,7 +236,10 @@ class CyberButton extends StatelessWidget {
 
 class GameScreen extends StatefulWidget {
   final bool isAiMode;
-  const GameScreen({super.key, required this.isAiMode});
+  final Color colorX;
+  final Color colorO;
+  
+  const GameScreen({super.key, required this.isAiMode, required this.colorX, required this.colorO});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -145,17 +250,26 @@ class _GameScreenState extends State<GameScreen> {
   bool isPlayer1Turn = true; // true = X, false = O
   bool isGameOver = false;
   String winner = '';
+  List<int> winningLine = [];
   int player1Score = 0;
   int player2Score = 0;
 
-  final Color colorX = const Color(0xFF00FFFF); // Neon Cyan
-  final Color colorO = const Color(0xFFFF007F); // Neon Pink
+  late Color colorX;
+  late Color colorO;
+
+  @override
+  void initState() {
+    super.initState();
+    colorX = widget.colorX;
+    colorO = widget.colorO;
+  }
 
   void resetGame() {
     setState(() {
       board = List.filled(9, '');
       isGameOver = false;
       winner = '';
+      winningLine = [];
       isPlayer1Turn = true;
     });
   }
@@ -167,12 +281,31 @@ class _GameScreenState extends State<GameScreen> {
     _processMove(index);
   }
 
+  List<int>? getWinningPattern(String player) {
+    const winPatterns = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+    for (var pattern in winPatterns) {
+      if (board[pattern[0]] == player &&
+          board[pattern[1]] == player &&
+          board[pattern[2]] == player) {
+        return pattern;
+      }
+    }
+    return null;
+  }
+
   void _processMove(int index) {
     setState(() {
       board[index] = isPlayer1Turn ? 'X' : 'O';
-      if (checkWinner(board[index])) {
+      
+      var winPattern = getWinningPattern(board[index]);
+      if (winPattern != null) {
         isGameOver = true;
         winner = board[index];
+        winningLine = winPattern;
         if (winner == 'X') {
           player1Score++;
         } else {
@@ -181,6 +314,7 @@ class _GameScreenState extends State<GameScreen> {
       } else if (!board.contains('')) {
         isGameOver = true;
         winner = 'Draw';
+        winningLine = [];
       } else {
         isPlayer1Turn = !isPlayer1Turn;
         if (widget.isAiMode && !isPlayer1Turn && !isGameOver) {
@@ -231,22 +365,6 @@ class _GameScreenState extends State<GameScreen> {
     return -1;
   }
 
-  bool checkWinner(String player) {
-    const winPatterns = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8],
-      [0, 3, 6], [1, 4, 7], [2, 5, 8],
-      [0, 4, 8], [2, 4, 6]
-    ];
-    for (var pattern in winPatterns) {
-      if (board[pattern[0]] == player &&
-          board[pattern[1]] == player &&
-          board[pattern[2]] == player) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -264,10 +382,9 @@ class _GameScreenState extends State<GameScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            child: Column(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0),
+          child: Column(
               children: [
                 // Scoreboard
                 Row(
@@ -301,60 +418,86 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 const SizedBox(height: 30),
                 // Game Board
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 24),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
-                      itemCount: 9,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: () => handleTap(index),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF141620),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: const Color(0xFF1F2232),
-                                width: 2,
+                Expanded(
+                  child: Center(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 24),
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: Stack(
+                          children: [
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
                               ),
-                              boxShadow: [
-                                if (board[index] != '')
-                                  BoxShadow(
-                                    color: board[index] == 'X' 
-                                        ? colorX.withAlpha(38) 
-                                        : colorO.withAlpha(38),
-                                    blurRadius: 15,
-                                    spreadRadius: 2,
-                                  )
-                              ]
+                              itemCount: 9,
+                              itemBuilder: (context, index) {
+                                return GestureDetector(
+                                  onTap: () => handleTap(index),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF141620),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: const Color(0xFF1F2232),
+                                        width: 2,
+                                      ),
+                                      boxShadow: [
+                                        if (board[index] != '')
+                                          BoxShadow(
+                                            color: board[index] == 'X' 
+                                                ? colorX.withAlpha(38) 
+                                                : colorO.withAlpha(38),
+                                            blurRadius: 15,
+                                            spreadRadius: 2,
+                                          )
+                                      ]
+                                    ),
+                                    child: Center(
+                                      child: _buildNeonShape(board[index]),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                            child: Center(
-                              child: _buildNeonShape(board[index]),
-                            ),
-                          ),
-                        );
-                      },
+                            if (winningLine.isNotEmpty)
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  child: TweenAnimationBuilder(
+                                    tween: Tween<double>(begin: 0.0, end: 1.0),
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.easeInOutCubic,
+                                    builder: (context, double val, child) {
+                                      return CustomPaint(
+                                        painter: StrikeLinePainter(
+                                          winningLine: winningLine,
+                                          color: winner == 'X' ? colorX : colorO,
+                                          progress: val,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
-                if (isGameOver)
-                  CyberButton(
-                    text: 'PLAY AGAIN',
-                    color: Colors.white,
-                    onTap: resetGame,
-                  ),
-                if (!isGameOver) const SizedBox(height: 56), // Placeholder to maintain size when button not present
-              ],
-            ),
+              const SizedBox(height: 40),
+              if (isGameOver)
+                CyberButton(
+                  text: 'PLAY AGAIN',
+                  color: Colors.white,
+                  onTap: resetGame,
+                ),
+              if (!isGameOver) const SizedBox(height: 56),
+            ],
           ),
         ),
       ),
@@ -373,7 +516,7 @@ class _GameScreenState extends State<GameScreen> {
           return Transform.scale(
             scale: val,
             child: Transform.rotate(
-              angle: (1.0 - val) * pi, // Spins as it scales up
+              angle: (1.0 - val) * pi,
               child: child,
             ),
           );
@@ -471,5 +614,66 @@ class _GameScreenState extends State<GameScreen> {
         ),
       ],
     );
+  }
+}
+
+class StrikeLinePainter extends CustomPainter {
+  final List<int> winningLine;
+  final Color color;
+  final double progress;
+
+  StrikeLinePainter({required this.winningLine, required this.color, required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (winningLine.isEmpty || progress == 0) return;
+
+    final glowPaint = Paint()
+      ..color = color.withAlpha(150)
+      ..strokeWidth = 20
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 10
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    double spacing = 12.0;
+    double cellW = (size.width - 2 * spacing) / 3;
+    double cellH = (size.height - 2 * spacing) / 3;
+
+    Offset getCenter(int index) {
+      int row = index ~/ 3;
+      int col = index % 3;
+      double x = col * (cellW + spacing) + cellW / 2;
+      double y = row * (cellH + spacing) + cellH / 2;
+      return Offset(x, y);
+    }
+
+    Offset startPoint = getCenter(winningLine.first);
+    Offset endPoint = getCenter(winningLine.last);
+
+    Offset direction = endPoint - startPoint;
+    double length = direction.distance;
+    if (length == 0) return;
+    direction = direction / length;
+
+    Offset p1 = startPoint - direction * (cellW * 0.35);
+    Offset p2 = endPoint + direction * (cellW * 0.35);
+
+    Offset currentP2 = p1 + (p2 - p1) * progress;
+
+    canvas.drawLine(p1, currentP2, glowPaint);
+    canvas.drawLine(p1, currentP2, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant StrikeLinePainter oldDelegate) {
+    return oldDelegate.winningLine != winningLine || 
+           oldDelegate.color != color || 
+           oldDelegate.progress != progress;
   }
 }
